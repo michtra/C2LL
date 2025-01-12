@@ -1,0 +1,23 @@
+{
+  "hello": {
+    "zh-CN": [
+      {"translation": "你好", "romanization": "Nǐ hǎo"}
+    ],
+    "ko": [
+      {"translation": "안녕하세요", "romanization": "annyeonghaseo", "note": "formal"},
+      {"translation": "안녕", "romanization": "annyeong", "note": "informal"}
+    ],
+    "vi": [
+      {"translation": "chào"},
+      {"translation": "thưa", "note": "formal; literal translation is \"dear\" [person]"}
+    ],
+    "hi": [
+      {"translation": "नमस्ते", "romanization": "namaste"}
+    ]
+  },
+  "bye": {
+    "zh-CN": [
+      {"translation": "再见", "romanization": "Zài jiàn"}
+    ]
+  }
+}
