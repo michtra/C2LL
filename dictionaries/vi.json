@@ -9,7 +9,7 @@
       {"translation": "hợp gu"}
     ]
   },
-  "decision": {
+  "decided": {
     "vi": [
       {"translation": "quyết định"}
     ]
@@ -37,6 +37,71 @@
   "excellent": {
     "vi": [
       {"translation": "Xuất sắc "}
+    ]
+  },
+  "business hours": {
+    "vi": [
+      {"translation": "giờ hành chính"}
+    ]
+  },
+  "explore": {
+    "vi": [
+      {"translation": "khám phá"}
+    ]
+  },
+  "traditional": {
+    "vi": [
+      {"translation": "truyền thống"}
+    ]
+  },
+  "modern": {
+    "vi": [
+      {"translation": "hiện đại"}
+    ]
+  },
+  "food without filling": {
+    "vi": [
+      {"translation": "đồ ăn không nhân"}
+    ]
+  },
+  "convenient": {
+    "vi": [
+      {"translation": "tiện"}
+    ]
+  },
+  "wait in line": {
+    "vi": [
+      {"translation": "xếp hàng"}
+    ]
+  },
+  "will become": {
+    "vi": [
+      {"translation": "sẽ trở nên"}
+    ]
+  },
+  "feature/characteristic": {
+    "vi": [
+      {"translation": "đặc điểm"}
+    ]
+  },
+  "difficult": {
+    "vi": [
+      {"translation": "khó khăn"}
+    ]
+  },
+  "or": {
+    "vi": [
+      {"translation": "hoặc "}
+    ]
+  },
+  "complain about service": {
+    "vi": [
+      {"translation": "phàn nàn về cách phục vụ"}
+    ]
+  },
+  "create more": {
+    "vi": [
+      {"translation": "tạo thêm"}
     ]
   }
 }

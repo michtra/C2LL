@@ -4,6 +4,19 @@ import datetime
 import os
 
 
+def sanitize_filename(filename):
+    """
+    Sanitize filename by replacing filesystem-incompatible characters.
+    :param filename: the filename to sanitize
+    :return: sanitized filename
+    """
+    # Replace / with - and other problematic characters
+    replacements = {'/': '-', '\\': '-', ':': '-', '*': '-', '?': '-', '"': '', '<': '-', '>': '-', '|': '-'}
+    for old, new in replacements.items():
+        filename = filename.replace(old, new)
+    return filename
+
+
 def format_time(ms):
     s = ms // 1000
     formatted_time = str(datetime.timedelta(seconds=s))
@@ -23,9 +36,12 @@ def generate_timecodes_and_audio(dictionary):
 
     english_phrases = json.load(open(dictionary, "r"))
     for english_phrase in english_phrases:
+        # sanitize the english phrase for use in filenames
+        safe_phrase = sanitize_filename(english_phrase)
+
         # append the image and audio file for the english phrase
-        image_path = f'out/{dictionary_name}/images/{english_phrase}.png'
-        audio_path = f'out/{dictionary_name}/audios/{english_phrase}.mp3'
+        image_path = f'out/{dictionary_name}/images/{safe_phrase}.png'
+        audio_path = f'out/{dictionary_name}/audios/{safe_phrase}.mp3'
 
         # create the visual here
         timestamp = format_time(cumulative_time_ms)
@@ -54,8 +70,8 @@ def generate_timecodes_and_audio(dictionary):
         for foreign_language in foreign_languages:
             # foreign languages can have multiple translations of an english phrase
             for i in range(len(foreign_languages[foreign_language])):
-                image_path = f'out/{dictionary_name}/images/{english_phrase}_{foreign_language}{i}.png'
-                audio_path = f'out/{dictionary_name}/audios/{english_phrase}_{foreign_language}{i}.mp3'
+                image_path = f'out/{dictionary_name}/images/{safe_phrase}_{foreign_language}{i}.png'
+                audio_path = f'out/{dictionary_name}/audios/{safe_phrase}_{foreign_language}{i}.mp3'
 
                 # create the visual here
                 timestamp = format_time(cumulative_time_ms)

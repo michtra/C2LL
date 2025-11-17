@@ -119,6 +119,19 @@ def generate_tts(translation_object, language, output_file):
         tts.save(output_file.replace(".mp3", "-breakdown.mp3"))
 
 
+def sanitize_filename(filename):
+    """
+    Sanitize filename by replacing filesystem-incompatible characters.
+    :param filename: the filename to sanitize
+    :return: sanitized filename
+    """
+    # Replace / with - and other problematic characters
+    replacements = {'/': '-', '\\': '-', ':': '-', '*': '-', '?': '-', '"': '', '<': '-', '>': '-', '|': '-'}
+    for old, new in replacements.items():
+        filename = filename.replace(old, new)
+    return filename
+
+
 async def process_dictionary(file, regenerate):
     """
     Processes the dictionary of translations.
@@ -129,7 +142,7 @@ async def process_dictionary(file, regenerate):
 
     '''
     JSON Dictionary Example:
-    
+
     "english_phrase": {
         "foreign_language": [
           {"translation": "你好", "romanization": "Nǐ hǎo"}
@@ -149,17 +162,20 @@ async def process_dictionary(file, regenerate):
     Dictionary name is the file name without the extension.
     Translations are numbered 1 to n.
     Output image/audio path: out/{dictionary name}/{english phrase}_{foreign language}{number}{file extension}
-    English phrases 
+    English phrases
     '''
 
     dictionary_name = os.path.splitext(os.path.basename(file))[0]
     english_phrases = json.load(open(file, "r"))
     for english_phrase in english_phrases:
+        # sanitize the english phrase for use in filenames
+        safe_phrase = sanitize_filename(english_phrase)
+
         # create an image and audio file for the english phrase
-        image_path = f'out/{dictionary_name}/images/{english_phrase}.png'
+        image_path = f'out/{dictionary_name}/images/{safe_phrase}.png'
         if regenerate or not os.path.exists(image_path):
             async_tasks.append(create_image(english_phrase, 'en', image_path))
-        audio_path = f'out/{dictionary_name}/audios/{english_phrase}.mp3'
+        audio_path = f'out/{dictionary_name}/audios/{safe_phrase}.mp3'
         if regenerate or not os.path.exists(audio_path):
             async_tasks.append(create_audio(english_phrase, 'en', audio_path))
 
@@ -169,10 +185,10 @@ async def process_dictionary(file, regenerate):
             # foreign languages can have multiple translations of an english phrase
             for i in range(len(foreign_languages[foreign_language])):
                 translation = foreign_languages[foreign_language][i]
-                image_path = f'out/{dictionary_name}/images/{english_phrase}_{foreign_language}{i}.png'
+                image_path = f'out/{dictionary_name}/images/{safe_phrase}_{foreign_language}{i}.png'
                 if regenerate or not os.path.exists(image_path):
                     async_tasks.append(create_image(translation, foreign_language, image_path))
-                audio_path = f'out/{dictionary_name}/audios/{english_phrase}_{foreign_language}{i}.mp3'
+                audio_path = f'out/{dictionary_name}/audios/{safe_phrase}_{foreign_language}{i}.mp3'
                 if regenerate or not os.path.exists(audio_path):
                     async_tasks.append(create_audio(translation, foreign_language, audio_path))
 
