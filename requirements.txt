@@ -2,3 +2,4 @@ pydub
 gtts
 audioop-lts
 streamlit
+requests
