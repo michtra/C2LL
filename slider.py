@@ -26,8 +26,11 @@ def format_time(ms):
     return formatted_time
 
 
-def generate_timecodes_and_audio(dictionary):
-    dictionary_name = os.path.splitext(os.path.basename(dictionary))[0]
+def generate_timecodes_and_audio(dictionary, output_name=None):
+    if output_name is None:
+        dictionary_name = os.path.splitext(os.path.basename(dictionary))[0]
+    else:
+        dictionary_name = output_name
 
     combined_audio = AudioSegment.empty()
     combined_timecodes = ""

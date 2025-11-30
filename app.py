@@ -119,8 +119,8 @@ with tab1:
                         progress_placeholder.text("Creating output directories...")
                         progress_bar.progress(10)
 
-                        # get the dictionary name
-                        dictionary_name = os.path.splitext(os.path.basename(temp_path))[0]
+                        # get the dictionary name from the uploaded file
+                        dictionary_name = os.path.splitext(uploaded_file.name)[0]
 
                         # create directories
                         image_dir = f'out/{dictionary_name}/images'
@@ -132,22 +132,20 @@ with tab1:
                         progress_placeholder.text("Generating translations...")
                         progress_bar.progress(30)
 
-                        # run the generate.py script
-                        cmd = ["python", "generate.py", temp_path]
-                        if regenerate:
-                            cmd.append("--regenerate")
+                        # run the generate.py script using direct function call
+                        import asyncio
+                        from generate import process_dictionary
 
-                        process = subprocess.Popen(
-                            cmd,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            text=True
-                        )
+                        try:
+                            asyncio.run(process_dictionary(temp_path, regenerate, dictionary_name))
+                            generate_success = True
+                            generate_error = None
+                        except Exception as e:
+                            generate_success = False
+                            generate_error = str(e)
 
-                        stdout, stderr = process.communicate()
-
-                        if process.returncode != 0:
-                            st.markdown(f"<div class='warning'>Error: {stderr}</div>", unsafe_allow_html=True)
+                        if not generate_success:
+                            st.error(f"Error in generate.py:\n\n{generate_error}")
                             os.unlink(temp_path)
                         else:
                             # update progress
@@ -156,19 +154,29 @@ with tab1:
 
                             # run slider.py functions
                             from slider import generate_timecodes_and_audio
-                            generate_timecodes_and_audio(temp_path)
+                            generate_timecodes_and_audio(temp_path, dictionary_name)
 
                             # update progress
                             progress_placeholder.text("Creating final video...")
                             progress_bar.progress(80)
 
                             # run the slider shell script
+                            video_file = f'out/{dictionary_name}/{dictionary_name}.mp4'
+                            timecodes_file = f'{dictionary_name}-timecodes.txt'
+                            audio_file = f'{dictionary_name}-audio.mp3'
+
+                            # debug: verify files exist
+                            if not os.path.exists(timecodes_file):
+                                st.error(f"Timecodes file not found: {timecodes_file}")
+                            if not os.path.exists(audio_file):
+                                st.error(f"Audio file not found: {audio_file}")
+
                             slider_cmd = [
                                 'sh',
                                 'slider.sh',
-                                '-i', f'{dictionary_name}-timecodes.txt',
-                                '-a', f'{dictionary_name}-audio.mp3',
-                                '-o', f'{dictionary_name}.mp4'
+                                '-i', timecodes_file,
+                                '-a', audio_file,
+                                '-o', video_file
                             ]
 
                             slider_process = subprocess.Popen(
@@ -181,23 +189,29 @@ with tab1:
                             slider_stdout, slider_stderr = slider_process.communicate()
 
                             if slider_process.returncode != 0:
-                                st.markdown(f"<div class='warning'>Error in slider script: {slider_stderr}</div>", unsafe_allow_html=True)
+                                error_msg = f"Error in slider script:\n\nReturn code: {slider_process.returncode}\n\n"
+                                if slider_stderr:
+                                    error_msg += f"STDERR:\n{slider_stderr}\n\n"
+                                if slider_stdout:
+                                    error_msg += f"STDOUT:\n{slider_stdout}"
+                                st.error(error_msg)
                             else:
                                 # complete progress
                                 progress_bar.progress(100)
                                 progress_placeholder.text("Process completed successfully!")
 
                                 # success message
-                                st.markdown(f"<div class='success'>Video generated successfully: {dictionary_name}.mp4</div>", unsafe_allow_html=True)
+                                st.markdown(f"<div class='success'>Video generated successfully: {video_file}</div>", unsafe_allow_html=True)
 
-                                # provide download link if file exists
-                                video_file = f"{dictionary_name}.mp4"
+                                # display video if file exists
                                 if os.path.exists(video_file):
+                                    st.video(video_file)
+
                                     with open(video_file, "rb") as file:
                                         btn = st.download_button(
                                             label="Download Video",
                                             data=file,
-                                            file_name=video_file,
+                                            file_name=f"{dictionary_name}.mp4",
                                             mime="video/mp4"
                                         )
 

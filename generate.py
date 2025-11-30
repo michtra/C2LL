@@ -38,6 +38,9 @@ async def create_image(translation_object, language, output_file):
     :param language: the language of the object, to be used in the header
     :param output_file: output file name
     """
+    # ensure output directory exists
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
     text = []
     fontfile = 'NotoSansCJK-Regular.ttc'
     if language == "hi":
@@ -102,6 +105,9 @@ def generate_tts(translation_object, language, output_file):
     :param language: the language of the object, to be used for the tts
     :param output_file: output file name
     """
+    # ensure output directory exists
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
     if isinstance(translation_object, dict):  # foreign language
         tts = gTTS(text=translation_object['translation'], lang=language)
         tts.save(output_file)
@@ -132,12 +138,13 @@ def sanitize_filename(filename):
     return filename
 
 
-async def process_dictionary(file, regenerate):
+async def process_dictionary(file, regenerate, output_name=None):
     """
     Processes the dictionary of translations.
 
     :param file: the JSON dictionary
     :param regenerate: argument to regenerate files
+    :param output_name: optional output name to use instead of file basename
     """
 
     '''
@@ -165,7 +172,10 @@ async def process_dictionary(file, regenerate):
     English phrases
     '''
 
-    dictionary_name = os.path.splitext(os.path.basename(file))[0]
+    if output_name is None:
+        dictionary_name = os.path.splitext(os.path.basename(file))[0]
+    else:
+        dictionary_name = output_name
     english_phrases = json.load(open(file, "r"))
     for english_phrase in english_phrases:
         # sanitize the english phrase for use in filenames
